@@ -1,0 +1,12 @@
+{
+    "version": "2.0.0",
+    "configurations": [
+        {
+            "type": "coreclr",
+            "request": "launch",
+            "name": "Launch .NET Core App",
+            "program": "${workspaceFolder}/src/thirds-for-windows11/bin/Debug/net8.0-windows/thirds-for-windows11.exe",
+            "preLaunchTask": "build"
+        }
+    ]
+}
