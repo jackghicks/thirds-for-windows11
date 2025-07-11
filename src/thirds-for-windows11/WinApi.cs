@@ -121,6 +121,15 @@ public static class WinApi
     [DllImport("user32.dll")]
     public static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
 
+    [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+    public static extern int GetWindowText(IntPtr hWnd, [Out] char[] lpString, int nMaxCount);
+
+    [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+    public static extern int GetClassName(IntPtr hWnd, [Out] char[] lpClassName, int nMaxCount);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
     // Constants for GetWindow function
     public const uint GW_OWNER = 4;
 
@@ -137,6 +146,75 @@ public static class WinApi
     public const byte VK_3 = 0x33;
     public const byte VK_5 = 0x35;
     public const byte VK_6 = 0x36;
+    #endregion
+
+    #region Window Information Methods
+
+    /// <summary>
+    /// Gets the window title text.
+    /// </summary>
+    /// <param name="hWnd">Handle to the window</param>
+    /// <returns>The window title, or empty string if none</returns>
+    public static string GetWindowTitle(IntPtr hWnd)
+    {
+        const int maxLength = 256;
+        char[] windowText = new char[maxLength];
+        int length = GetWindowText(hWnd, windowText, maxLength);
+        return length > 0 ? new string(windowText, 0, length) : "";
+    }
+
+    /// <summary>
+    /// Gets the window class name.
+    /// </summary>
+    /// <param name="hWnd">Handle to the window</param>
+    /// <returns>The window class name, or empty string if unable to retrieve</returns>
+    public static string GetWindowClassName(IntPtr hWnd)
+    {
+        const int maxLength = 256;
+        char[] className = new char[maxLength];
+        int length = GetClassName(hWnd, className, maxLength);
+        return length > 0 ? new string(className, 0, length) : "";
+    }
+
+    /// <summary>
+    /// Gets information about the process that owns the window.
+    /// </summary>
+    /// <param name="hWnd">Handle to the window</param>
+    /// <returns>Process information including name and file path, or empty values if unable to retrieve</returns>
+    public static (string processName, string fileName) GetWindowProcessInfo(IntPtr hWnd)
+    {
+        try
+        {
+            uint processId;
+            GetWindowThreadProcessId(hWnd, out processId);
+
+            if (processId == 0)
+                return ("", "");
+
+            using (var process = Process.GetProcessById((int)processId))
+            {
+                string processName = process.ProcessName;
+                string fileName = "";
+
+                try
+                {
+                    fileName = process.MainModule?.FileName ?? "";
+                }
+                catch
+                {
+                    // Some system processes may not allow access to MainModule
+                    fileName = "";
+                }
+
+                return (processName, fileName);
+            }
+        }
+        catch
+        {
+            return ("", "");
+        }
+    }
+
     #endregion
 
     #region Window Processability Methods
@@ -189,12 +267,28 @@ public static class WinApi
         // Check if it has a visible owner (child window check)
         if (HasVisibleOwner(window))
         {
-            // For now, we'll allow child windows, but this could be made configurable
-            // In FancyZones this is controlled by allowSnapChildWindows setting
-            // Debug.WriteLine($"Window {window} rejected: Window has a visible owner");
-            // return false; // Uncomment to disallow child windows
+            Debug.WriteLine($"Window {window} rejected: Window has a visible owner");
+            return false; 
         }
 
+        // Special case for specific system window classes
+        switch (GetWindowClassName(window))
+        {
+            case "ApplicationFrameWindow":
+                Debug.WriteLine($"Window {window} rejected: Window is of a system class (ApplicationFrameWindow or CabinetWClass)");
+                return false;
+            default:
+                break;
+        }
+
+        // TODO: Can we do better?  Is it possible to detect if a window is currently draggable/moveable, too?
+        if(!IsWindowEnabled(window))
+        {
+            Debug.WriteLine($"Window {window} rejected: Window is not enabled");
+            return false;
+        }
+
+        Debug.WriteLine($"Window accepted." + DescribeWindow(window));
         return true;
     }
 
@@ -232,6 +326,31 @@ public static class WinApi
         return owner != IntPtr.Zero && IsWindow(owner) && IsWindowVisible(owner);
     }
 
+    public static string DescribeWindow(IntPtr hWnd)
+    {
+        // Get detailed window information
+        string title = GetWindowTitle(hWnd);
+        string className = GetWindowClassName(hWnd);
+        var (processName, fileName) = GetWindowProcessInfo(hWnd);
+
+        // Format the log message with available information
+        string logMessage = $"WindowPtr: {hWnd}";
+
+        if (!string.IsNullOrEmpty(title))
+            logMessage += $" | Title: '{title}'";
+
+        if (!string.IsNullOrEmpty(className))
+            logMessage += $" | Class: '{className}'";
+
+        if (!string.IsNullOrEmpty(processName))
+            logMessage += $" | Process: '{processName}'";
+
+        if (!string.IsNullOrEmpty(fileName))
+            logMessage += $" | File: '{fileName}'";
+
+        return logMessage;
+    }
+
     /// <summary>
     /// Counts the number of processable windows currently open.
     /// </summary>
@@ -239,17 +358,16 @@ public static class WinApi
     public static int CountProcessableWindows()
     {
         int count = 0;
-        
+
         EnumWindows((hWnd, lParam) =>
         {
             if (IsWindowProcessable(hWnd))
             {
                 count++;
-                Debug.WriteLine($"Processable window found: {hWnd}");
             }
             return true; // Continue enumeration
         }, IntPtr.Zero);
-        
+
         Debug.WriteLine($"Total processable windows: {count}");
         return count;
     }
