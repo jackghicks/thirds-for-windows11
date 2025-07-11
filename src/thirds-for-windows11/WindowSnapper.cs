@@ -88,12 +88,12 @@ public class WindowSnapper
                     SendKeyUp(WinApi.VK_Z);
                     SendKeyUp(WinApi.VK_LWIN);
 
-                    Thread.Sleep(80);
+                    Thread.Sleep(100);
 
                     SendKeyDown(WinApi.VK_6);
                     SendKeyUp(WinApi.VK_6);
 
-                    Thread.Sleep(30);
+                    Thread.Sleep(50);
 
                     byte zoneKey = zoneNumber switch
                     {
