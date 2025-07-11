@@ -53,6 +53,12 @@ public class WindowSnapper
     /// </summary>
     public void TrySnap(IntPtr windowHandle, WinApi.POINT point)
     {
+        // Check if the window is processable before attempting to snap
+        if (!WinApi.IsWindowProcessable(windowHandle))
+        {
+            return;
+        }
+
         var zone = GetSnapZone(point);
 
         if (zone == SnapZone.None)
