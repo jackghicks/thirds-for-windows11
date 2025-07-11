@@ -63,6 +63,7 @@ public static class WinApi
 
     #region Delegates
     public delegate IntPtr LowLevelMouseProc(int nCode, IntPtr wParam, IntPtr lParam);
+    public delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
     #endregion
 
     #region DLL Imports
@@ -117,6 +118,9 @@ public static class WinApi
     [DllImport("user32.dll")]
     public static extern bool IsWindowEnabled(IntPtr hWnd);
 
+    [DllImport("user32.dll")]
+    public static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
+
     // Constants for GetWindow function
     public const uint GW_OWNER = 4;
 
@@ -131,6 +135,7 @@ public static class WinApi
     public const byte VK_1 = 0x31;
     public const byte VK_2 = 0x32;
     public const byte VK_3 = 0x33;
+    public const byte VK_5 = 0x35;
     public const byte VK_6 = 0x36;
     #endregion
 
@@ -225,6 +230,28 @@ public static class WinApi
     {
         var owner = GetWindow(window, GW_OWNER);
         return owner != IntPtr.Zero && IsWindow(owner) && IsWindowVisible(owner);
+    }
+
+    /// <summary>
+    /// Counts the number of processable windows currently open.
+    /// </summary>
+    /// <returns>The count of windows that can be processed for snapping operations</returns>
+    public static int CountProcessableWindows()
+    {
+        int count = 0;
+        
+        EnumWindows((hWnd, lParam) =>
+        {
+            if (IsWindowProcessable(hWnd))
+            {
+                count++;
+                Debug.WriteLine($"Processable window found: {hWnd}");
+            }
+            return true; // Continue enumeration
+        }, IntPtr.Zero);
+        
+        Debug.WriteLine($"Total processable windows: {count}");
+        return count;
     }
 
     #endregion

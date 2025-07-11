@@ -96,8 +96,24 @@ public class WindowSnapper
 
                     Thread.Sleep(100);
 
-                    SendKeyDown(WinApi.VK_6);
-                    SendKeyUp(WinApi.VK_6);
+                    // This step is crude, but the principle is that Snap Assist will show the three-column layout
+                    // on different keys depending on how many processable windows are open.
+                    int processableWindows = WinApi.CountProcessableWindows();
+                    switch (processableWindows)
+                    {
+                        case 1:
+                            SendKeyDown(WinApi.VK_3);
+                            SendKeyUp(WinApi.VK_3);
+                            break;
+                        case 2:
+                            SendKeyDown(WinApi.VK_5);
+                            SendKeyUp(WinApi.VK_5);
+                            break;
+                        default:
+                            SendKeyDown(WinApi.VK_6);
+                            SendKeyUp(WinApi.VK_6);
+                            break;
+                    }
 
                     Thread.Sleep(50);
 
