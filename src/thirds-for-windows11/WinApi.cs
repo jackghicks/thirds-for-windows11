@@ -274,8 +274,9 @@ public static class WinApi
         // Special case for specific system window classes
         switch (GetWindowClassName(window))
         {
+            case "MSTaskSwWClass":
             case "ApplicationFrameWindow":
-                Debug.WriteLine($"Window {window} rejected: Window is of a system class (ApplicationFrameWindow or CabinetWClass)");
+                Debug.WriteLine($"Window {window} rejected: Window is of a system class (ApplicationFrameWindow or MSTaskSwWClass)");
                 return false;
             default:
                 break;

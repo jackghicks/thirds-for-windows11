@@ -59,6 +59,8 @@ public class WindowSnapper
             return;
         }
 
+        Debug.WriteLine($"Attempting to snap window: {WinApi.DescribeWindow(windowHandle)} at point ({point.x}, {point.y})");
+
         var zone = GetSnapZone(point);
 
         if (zone == SnapZone.None)
