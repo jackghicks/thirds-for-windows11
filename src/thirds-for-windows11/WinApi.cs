@@ -226,15 +226,7 @@ public static class WinApi
     /// <returns>True if the window can be processed for snapping, false otherwise</returns>
     public static bool IsWindowProcessable(IntPtr window)
     {
-        // Check if window is minimized
-        if (IsIconic(window))
-        {
-            Debug.WriteLine($"Window {window} rejected: Window is minimized");
-            return false;
-        }
-
         var style = GetWindowLong(window, GWL_STYLE);
-        var exStyle = GetWindowLong(window, GWL_EXSTYLE);
 
         // Check if window is visible
         if (!HasStyle(style, WS_VISIBLE))
@@ -242,6 +234,8 @@ public static class WinApi
             Debug.WriteLine($"Window {window} rejected: Window is not visible");
             return false;
         }
+
+        var exStyle = GetWindowLong(window, GWL_EXSTYLE);
 
         // Check if it's a tool window (we don't want to snap these)
         if (HasStyle(exStyle, WS_EX_TOOLWINDOW))
@@ -261,6 +255,13 @@ public static class WinApi
             // Skip popup windows that don't have proper window features
             // This filters out menus, notifications, etc.
             Debug.WriteLine($"Window {window} rejected: Popup window without proper features (no thick frame and caption/min-max buttons)");
+            return false;
+        }
+
+        // Check if window is minimized
+        if (IsIconic(window))
+        {
+            Debug.WriteLine($"Window {window} rejected: Window is minimized");
             return false;
         }
 
