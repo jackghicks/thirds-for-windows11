@@ -27,6 +27,27 @@ public class TrayManager : IDisposable
         };
 
         var contextMenu = new ContextMenuStrip();
+        contextMenu.Items.Add(new ToolStripMenuItem("Thirds for Windows 11") { Enabled = false });
+        contextMenu.Items.Add(new ToolStripMenuItem("by Jack Hicks") { Enabled = false });
+        contextMenu.Items.Add(new ToolStripSeparator());
+        contextMenu.Items.Add("Open GitHub...", null, (s, e) =>
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "https://github.com/jackghicks/thirds-for-windows11",
+                UseShellExecute = true
+            });
+        });
+        var startWithWindowsItem = new ToolStripMenuItem("Start with Windows?")
+        {
+            CheckOnClick = true,
+            Checked = StartupManager.IsStartupEnabled()
+        };
+        startWithWindowsItem.CheckedChanged += (s, e) =>
+        {
+            StartupManager.SetStartupEnabled(startWithWindowsItem.Checked);
+        };
+        contextMenu.Items.Add(startWithWindowsItem);
         contextMenu.Items.Add("Exit", null, (s, e) => Application.Exit());
         
         notifyIcon.ContextMenuStrip = contextMenu;
