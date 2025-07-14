@@ -283,7 +283,6 @@ public static class WinApi
                 break;
         }
 
-        // TODO: Can we do better?  Is it possible to detect if a window is currently draggable/moveable, too?
         if(!IsWindowEnabled(window))
         {
             Debug.WriteLine($"Window {window} rejected: Window is not enabled");

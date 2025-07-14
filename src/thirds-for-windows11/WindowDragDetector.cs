@@ -86,6 +86,7 @@ public class WindowDragDetector : IDisposable
             if (WinApi.GetWindowRect(windowUnderCursor, out var rect))
             {
                 // Estimating the title bar area at about 50 pixels, are we in the top 50px?
+                // TODO: Is top 50px the best we can do here?  Can we do better?
                 var relativeY = args.Point.y - rect.top;
                 if (relativeY >= 0 && relativeY <= 50)
                 {
