@@ -14,6 +14,28 @@ I wanted to focus on keeping the snapping behaviour inside Windows's built in Sn
 * Setting window position and size directly does not work consistently across different types and classes of window.
 * Snap Assist has other features which are really great, such as resizing the columns and having neighboring windows resize to match.  If you set the window size and position using Windows API, that no longer happens.
 
+## What are the keystrokes?
+
+In general, it's this sequence:
+1. `WinKey + Z` - Opens the Snap Assist menu for the currently focussed window.
+2. `6` - Selects thirds (usually, but not always 6, see below)
+3. `1/2/3` - Selects the specific third, and commences the snap.
+
+Note that the 6 seems to depend on how many windows are currently open and considered "snappable".  It seems that:
+* 1 Window - Thirds are on key `3`
+* 2 Windows - Thirds are on key `5`
+* 3 Windows or more - Thirds are on key `6`
+
+The logic for this is inside the WindowSnapper class.
+
+## Known Issues
+
+* You do see a small flicker of the Snap Assist menu as it activates.  This is just inherent in the way the program is working, and an acceptable compromise (I think) to keep within the auspices of the otherwise default Snap Assist functionality.
+
+## Contributing
+
+I am already daily-driving this program, and will keep this repo up to date with my latest changes.  If you find issues, please let me know in the issue tracker, and similarly if you end up fixing them yourself I'll be very grateful to receive PRs.
+
 ## Build
 
 This is a compeltely standard .NET Winforms project:
