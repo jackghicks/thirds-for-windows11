@@ -43,7 +43,12 @@ public class TrayManager : IDisposable
         };
 
         var contextMenu = new ContextMenuStrip();
-        contextMenu.Items.Add(new ToolStripMenuItem("Thirds for Windows 11") { Enabled = false });
+        
+        // Get version information
+        var assembly = Assembly.GetExecutingAssembly();
+        var version = assembly.GetName().Version?.ToString(3) ?? "Unknown";
+
+        contextMenu.Items.Add(new ToolStripMenuItem($"Thirds for Windows 11 - v{version}") { Enabled = false });
         contextMenu.Items.Add(new ToolStripMenuItem("by jackghicks") { Enabled = false });
         contextMenu.Items.Add(new ToolStripSeparator());
         contextMenu.Items.Add("Open GitHub...", null, (s, e) =>

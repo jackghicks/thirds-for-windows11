@@ -10,6 +10,16 @@
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>false</SelfContained>
     <ApplicationIcon>res/icons/AppList.ico</ApplicationIcon>
+    
+    <!-- Version Information -->
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Version>1.0.0</Version>
+    <AssemblyTitle>Thirds for Windows 11</AssemblyTitle>
+    <AssemblyDescription>Window snapping utility for Windows 11</AssemblyDescription>
+    <AssemblyCompany>jackghicks</AssemblyCompany>
+    <AssemblyProduct>Thirds for Windows 11</AssemblyProduct>
+    <AssemblyCopyright>Copyright © 2025 jackghicks</AssemblyCopyright>
   </PropertyGroup>
 
   <ItemGroup>
