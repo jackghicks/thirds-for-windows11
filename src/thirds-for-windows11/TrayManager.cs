@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Reflection;
 
 namespace WindowSnapManager;
 
@@ -17,18 +18,33 @@ public class TrayManager : IDisposable
         _notifyIcon = SetupNotifyIcon();
     }
 
+    private Icon LoadEmbeddedIcon()
+    {
+        var assembly = Assembly.GetExecutingAssembly();
+        var resourceName = "thirds_for_windows11.res.icons.AppList.ico";
+
+        using var stream = assembly.GetManifestResourceStream(resourceName);
+        if (stream == null)
+        {
+            // Fallback to system icon if embedded resource is not found
+            return SystemIcons.Application;
+        }
+
+        return new Icon(stream);
+    }
+
     private NotifyIcon SetupNotifyIcon()
     {
         var notifyIcon = new NotifyIcon
         {
-            Icon = SystemIcons.Application,
+            Icon = LoadEmbeddedIcon(),
             Text = "Thirds for Windows 11",
             Visible = true
         };
 
         var contextMenu = new ContextMenuStrip();
         contextMenu.Items.Add(new ToolStripMenuItem("Thirds for Windows 11") { Enabled = false });
-        contextMenu.Items.Add(new ToolStripMenuItem("by Jack Hicks") { Enabled = false });
+        contextMenu.Items.Add(new ToolStripMenuItem("by jackghicks") { Enabled = false });
         contextMenu.Items.Add(new ToolStripSeparator());
         contextMenu.Items.Add("Open GitHub...", null, (s, e) =>
         {
