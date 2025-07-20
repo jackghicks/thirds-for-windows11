@@ -124,6 +124,8 @@ public class WindowSnapper
                         1 => WinApi.VK_1,
                         2 => WinApi.VK_2,
                         3 => WinApi.VK_3,
+                        // default case should never happen, but to silence compiler warnings, default to VK_1
+                        _ => WinApi.VK_1
                     };
 
                     SendKeyDown(zoneKey);
