@@ -34,7 +34,7 @@ The logic for this is inside the WindowSnapper class.
 
 ## Contributing
 
-I am already daily-driving this program, and will keep this repo up to date with my latest changes.  If you find issues, please let me know in the issue tracker, and similarly if you end up fixing them yourself I'll be very grateful to receive PRs.
+I am already daily-driving this program, and will keep this repo up to date with my latest changes as I find problems and improve it.  If you find issues, please let me know in the issue tracker, and similarly if you end up fixing them yourself I'll be very grateful to receive PRs.
 
 ## Build
 
