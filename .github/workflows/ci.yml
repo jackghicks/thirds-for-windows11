@@ -1,0 +1,41 @@
+name: Build: main
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-matrix:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        runtime: [win-x64, win-arm64]
+        self-contained: [true, false]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Test publish for ${{ matrix.runtime }}
+        run: |
+          dotnet publish src/thirds-for-windows11/thirds-for-windows11.csproj `
+            --configuration Release `
+            --runtime ${{ matrix.runtime }} `
+            --self-contained ${{ matrix.self-contained }} `
+            --output ./test-publish/${{ matrix.runtime }}.self-contained-${{ matrix.self-contained }} `
+
+      - name: Verify published executable
+        run: |
+          $exePath = "./test-publish/${{ matrix.runtime }}.self-contained-${{ matrix.self-contained }}/thirds-for-windows11.exe"
+          if (Test-Path $exePath) {
+            $fileInfo = Get-Item $exePath
+            Write-Host "✅ Published executable for ${{ matrix.runtime }}: $($fileInfo.Length) bytes"
+          } else {
+            Write-Host "❌ Published executable not found for ${{ matrix.runtime }}"
+            exit 1
+          }
