@@ -11,7 +11,7 @@ jobs:
       matrix:
         runtime: [win-x64, win-arm64]
         self-contained: [true, false]
-    
+    name: "Build ${{ matrix.runtime }} Self-Contained: ${{ matrix.self-contained }}"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -39,3 +39,9 @@ jobs:
             Write-Host "❌ Published executable not found for ${{ matrix.runtime }}"
             exit 1
           }
+
+      - name: Upload executable as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: "thirds-for-windows11-${{ matrix.runtime }}-self-contained-${{ matrix.self-contained }}"
+          path: "./test-publish/${{ matrix.runtime }}.self-contained-${{ matrix.self-contained }}/thirds-for-windows11.exe"
