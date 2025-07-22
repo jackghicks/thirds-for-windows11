@@ -29,54 +29,13 @@ jobs:
         runtime: [win-x64, win-arm64]
         self-contained: [true, false]
     name: "Build ${{ matrix.runtime }} Self-Contained: ${{ matrix.self-contained }}"
-    if: ${{ needs.release-please.outputs.release_created || (matrix.runtime == 'win-x64' && matrix.self-contained == false) }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+      - name: Build
+        if: ${{ needs.release-please.outputs.release_created || (matrix.runtime == 'win-x64' && matrix.self-contained == false) }}
+        uses: ./.github/workflows/build/action.yml
         with:
-          dotnet-version: '8.0.x'
-
-      - name: Update csproj file assembly version
-        run: |
-          # Update the assembly version in the csproj file
-          $csprojPath = "src/thirds-for-windows11/thirds-for-windows11.csproj"
-          [xml]$csproj = Get-Content $csprojPath
-          $csproj.Project.PropertyGroup.AssemblyVersion.InnerText = "${{ needs.release-please.outputs.version }}.0"
-          $csproj.Project.PropertyGroup.FileVersion.InnerText = "${{ needs.release-please.outputs.version }}.0"
-          $csproj.Project.PropertyGroup.Version.InnerText = "${{ needs.release-please.outputs.version }}"
-          $csproj.Save($csprojPath)
-
-      - name: Test publish for ${{ matrix.runtime }}
-        run: |
-          dotnet publish src/thirds-for-windows11/thirds-for-windows11.csproj `
-            --configuration Release `
-            --runtime ${{ matrix.runtime }} `
-            --self-contained ${{ matrix.self-contained }} `
-            --output ./test-publish/${{ matrix.runtime }}.self-contained-${{ matrix.self-contained }} `
-
-      - name: Verify published executable
-        run: |
-          $exePath = "./test-publish/${{ matrix.runtime }}.self-contained-${{ matrix.self-contained }}/thirds-for-windows11.exe"
-          if (Test-Path $exePath) {
-            $fileInfo = Get-Item $exePath
-            Write-Host "✅ Published executable for ${{ matrix.runtime }}: $($fileInfo.Length) bytes"
-          } else {
-            Write-Host "❌ Published executable not found for ${{ matrix.runtime }}"
-            exit 1
-          }
-
-      - name: Upload executable as artifact
-        if: ${{ needs.release-please.outputs.release_created == false }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: "thirds-for-windows11-${{ matrix.runtime }}-self-contained-${{ matrix.self-contained }}"
-          path: "./test-publish/${{ matrix.runtime }}.self-contained-${{ matrix.self-contained }}/thirds-for-windows11.exe"
-
-      - name: Upload Release Artifact
-        if: ${{ steps.release.outputs.release_created }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ steps.release.outputs.tag_name }} ./test-publish/${{ matrix.runtime }}.self-contained-${{ matrix.self-contained }}/thirds-for-windows11-v${{ needs.release-please.outputs.version }}.exe
+          runtime: ${{ matrix.runtime }}
+          self-contained: ${{ matrix.self-contained }}
+          version: ${{ needs.release-please.outputs.version }}
+          release_created: ${{ needs.release-please.outputs.release_created }}
+          tag_name: ${{ needs.release-please.outputs.tag_name }}
