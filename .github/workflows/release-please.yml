@@ -23,13 +23,13 @@ jobs:
           release-type: simple
   build:
     needs: release-please
-    if: ${{ needs.release-please.outputs.release_created || (matrix.runtime == 'win-x64' && matrix.self-contained == false) }}
     runs-on: windows-latest
     strategy:
       matrix:
         runtime: [win-x64, win-arm64]
         self-contained: [true, false]
     name: "Build ${{ matrix.runtime }} Self-Contained: ${{ matrix.self-contained }}"
+    if: ${{ needs.release-please.outputs.release_created || (matrix.runtime == 'win-x64' && matrix.self-contained == false) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
