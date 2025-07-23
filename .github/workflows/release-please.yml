@@ -21,6 +21,7 @@ jobs:
         id: release-please
         with:
           release-type: simple
+          token: ${{ secrets.GITHUB_TOKEN }}
   build:
     needs: release-please
     runs-on: windows-latest
