@@ -29,6 +29,10 @@ jobs:
           echo "Version: ${{ steps.release-please.outputs.version }}"
           echo "Release Created: ${{ steps.release-please.outputs.release_created }}"
           echo "Tag Name: ${{ steps.release-please.outputs.tag_name }}"
+      - name: Dump all outputs
+        run: |
+          echo "🔎 Outputs:"
+          echo "${{ toJson(steps.release-please.outputs) }}"
   build-and-release:
     needs: release-please
     runs-on: windows-latest
