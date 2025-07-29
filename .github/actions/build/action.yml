@@ -31,42 +31,42 @@ runs:
         # Update the assembly version in the csproj file
         $csprojPath = "src/thirds-for-windows11/thirds-for-windows11.csproj"
         [xml]$csproj = Get-Content $csprojPath
-        $csproj.Project.PropertyGroup.AssemblyVersion.InnerText = "${{ needs.release-please.outputs.version }}.0"
-        $csproj.Project.PropertyGroup.FileVersion.InnerText = "${{ needs.release-please.outputs.version }}.0"
-        $csproj.Project.PropertyGroup.Version.InnerText = "${{ needs.release-please.outputs.version }}"
+        $csproj.Project.PropertyGroup.AssemblyVersion.InnerText = "${{ inputs.version }}.0"
+        $csproj.Project.PropertyGroup.FileVersion.InnerText = "${{ inputs.version }}.0"
+        $csproj.Project.PropertyGroup.Version.InnerText = "${{ inputs.version }}"
         $csproj.Save($csprojPath)
 
-    - name: Test publish for ${{ matrix.runtime }}
+    - name: Test publish for ${{ inputs.runtime }}
       shell: pwsh
       run: |
         dotnet publish src/thirds-for-windows11/thirds-for-windows11.csproj `
           --configuration Release `
-          --runtime ${{ matrix.runtime }} `
-          --self-contained ${{ matrix.self-contained }} `
-          --output ./test-publish/${{ matrix.runtime }}.self-contained-${{ matrix.self-contained }} `
+          --runtime ${{ inputs.runtime }} `
+          --self-contained ${{ inputs.self-contained }} `
+          --output ./test-publish/${{ inputs.runtime }}.self-contained-${{ inputs.self-contained }} `
 
     - name: Verify published executable
       shell: pwsh
       run: |
-        $exePath = "./test-publish/${{ matrix.runtime }}.self-contained-${{ matrix.self-contained }}/thirds-for-windows11.exe"
+        $exePath = "./test-publish/${{ inputs.runtime }}.self-contained-${{ inputs.self-contained }}/thirds-for-windows11.exe"
         if (Test-Path $exePath) {
           $fileInfo = Get-Item $exePath
-          Write-Host "✅ Published executable for ${{ matrix.runtime }}: $($fileInfo.Length) bytes"
+          Write-Host "✅ Published executable for ${{ inputs.runtime }}: $($fileInfo.Length) bytes"
         } else {
-          Write-Host "❌ Published executable not found for ${{ matrix.runtime }}"
+          Write-Host "❌ Published executable not found for ${{ inputs.runtime }}"
           exit 1
         }
 
     - name: Upload executable as artifact
-      if: ${{ needs.release-please.outputs.release_created == false }}
+      if: ${{ inputs.release_created == false }}
       uses: actions/upload-artifact@v4
       with:
-        name: "thirds-for-windows11-${{ matrix.runtime }}-self-contained-${{ matrix.self-contained }}"
-        path: "./test-publish/${{ matrix.runtime }}.self-contained-${{ matrix.self-contained }}/thirds-for-windows11.exe"
+        name: "thirds-for-windows11-${{ inputs.runtime }}-self-contained-${{ inputs.self-contained }}"
+        path: "./test-publish/${{ inputs.runtime }}.self-contained-${{ inputs.self-contained }}/thirds-for-windows11.exe"
 
     - name: Upload Release Artifact
       shell: pwsh
       if: ${{ steps.release.outputs.release_created }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: gh release upload ${{ steps.release.outputs.tag_name }} ./test-publish/${{ matrix.runtime }}.self-contained-${{ matrix.self-contained }}/thirds-for-windows11-v${{ needs.release-please.outputs.version }}.exe
+      run: gh release upload ${{ steps.release.outputs.tag_name }} ./test-publish/${{ inputs.runtime }}.self-contained-${{ inputs.self-contained }}/thirds-for-windows11-v${{ inputs.version }}.exe
