@@ -7,15 +7,10 @@ inputs:
   self-contained:
     required: true
     description: "Whether to build as self-contained (true/false)"
-  version:
-    required: true
-    description: "Version to set in the assembly"
-  release_created:
-    required: true
-    description: "Indicates if a release was created in the previous job"
   tag_name:
     required: false
     description: "Tag name for the release, if applicable"
+
 
 runs:
   using: "composite"
@@ -63,10 +58,3 @@ runs:
       with:
         name: "thirds-for-windows11-${{ inputs.runtime }}-self-contained-${{ inputs.self-contained }}"
         path: "./test-publish/${{ inputs.runtime }}.self-contained-${{ inputs.self-contained }}/thirds-for-windows11.exe"
-
-    - name: Upload Release Artifact
-      shell: pwsh
-      if: ${{ steps.release.outputs.release_created }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: gh release upload ${{ steps.release.outputs.tag_name }} ./test-publish/${{ inputs.runtime }}.self-contained-${{ inputs.self-contained }}/thirds-for-windows11-v${{ inputs.version }}.exe
