@@ -32,6 +32,7 @@ jobs:
         self-contained: [true, false]
     name: "Build ${{ matrix.runtime }} Self-Contained: ${{ matrix.self-contained }}"
     steps:
+      - uses: actions/checkout@v4
       - name: Build
         if: ${{ needs.release-please.outputs.release_created || (matrix.runtime == 'win-x64' && matrix.self-contained == false) }}
         uses: ./.github/actions/build
