@@ -12,9 +12,9 @@
     <ApplicationIcon>res/icons/AppList.ico</ApplicationIcon>
     
     <!-- Version Information -->
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
-    <Version>1.0.0</Version>
+    <AssemblyVersion>0.0.0.0</AssemblyVersion>
+    <FileVersion>0.0.0.0</FileVersion>
+    <Version>0.0.0</Version>
     <AssemblyTitle>Thirds for Windows 11</AssemblyTitle>
     <AssemblyDescription>Window snapping utility for Windows 11</AssemblyDescription>
     <AssemblyCompany>jackghicks</AssemblyCompany>
