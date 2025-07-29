@@ -34,7 +34,7 @@ jobs:
     steps:
       - name: Build
         if: ${{ needs.release-please.outputs.release_created || (matrix.runtime == 'win-x64' && matrix.self-contained == false) }}
-        uses: ./.github/workflows/build/action.yml
+        uses: ./.github/actions/build
         with:
           runtime: ${{ matrix.runtime }}
           self-contained: ${{ matrix.self-contained }}
