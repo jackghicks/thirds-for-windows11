@@ -7,10 +7,9 @@ inputs:
   self-contained:
     required: true
     description: "Whether to build as self-contained (true/false)"
-  tag_name:
-    required: false
-    description: "Tag name for the release, if applicable"
-
+  version:
+    required: true
+    description: "Version to set in the assembly"
 
 runs:
   using: "composite"

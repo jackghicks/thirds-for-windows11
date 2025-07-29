@@ -12,6 +12,7 @@ name: release-please
 
 jobs:
   release-please:
+    name: "Release Please"
     runs-on: ubuntu-latest
     outputs:
       release_created: ${{ steps.release-please.outputs.release_created }}
@@ -23,7 +24,7 @@ jobs:
         with:
           release-type: simple
           token: ${{ secrets.GITHUB_TOKEN }}
-  build:
+  build-and-release:
     needs: release-please
     runs-on: windows-latest
     strategy:
@@ -33,6 +34,7 @@ jobs:
     name: "Build ${{ matrix.runtime }} Self-Contained: ${{ matrix.self-contained }}"
     steps:
       - uses: actions/checkout@v4
+      
       - name: Build
         if: ${{ needs.release-please.outputs.release_created || (matrix.runtime == 'win-x64' && matrix.self-contained == false) }}
         uses: ./.github/actions/build
@@ -40,8 +42,6 @@ jobs:
           runtime: ${{ matrix.runtime }}
           self-contained: ${{ matrix.self-contained }}
           version: ${{ needs.release-please.outputs.version }}
-          release_created: ${{ needs.release-please.outputs.release_created }}
-          tag_name: ${{ needs.release-please.outputs.tag_name }}
       
       - name: Upload Release Artifact
         shell: pwsh
