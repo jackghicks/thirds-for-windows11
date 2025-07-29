@@ -20,6 +20,7 @@ runs:
         dotnet-version: '8.0.x'
 
     - name: Update csproj file assembly version
+      if: ${{ inputs.version != '' }}
       shell: pwsh
       run: |
         # Update the assembly version in the csproj file
