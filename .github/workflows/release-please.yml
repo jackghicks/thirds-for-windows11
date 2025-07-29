@@ -24,6 +24,11 @@ jobs:
         with:
           release-type: simple
           token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Test
+        run: |
+          echo "Version: ${{ steps.release-please.outputs.version }}"
+          echo "Release Created: ${{ steps.release-please.outputs.release_created }}"
+          echo "Tag Name: ${{ steps.release-please.outputs.tag_name }}"
   build-and-release:
     needs: release-please
     runs-on: windows-latest
