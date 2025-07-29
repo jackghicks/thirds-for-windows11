@@ -25,9 +25,9 @@ runs:
         # Update the assembly version in the csproj file
         $csprojPath = "src/thirds-for-windows11/thirds-for-windows11.csproj"
         [xml]$csproj = Get-Content $csprojPath
-        $csproj.Project.PropertyGroup.AssemblyVersion.InnerText = "${{ inputs.version }}.0"
-        $csproj.Project.PropertyGroup.FileVersion.InnerText = "${{ inputs.version }}.0"
-        $csproj.Project.PropertyGroup.Version.InnerText = "${{ inputs.version }}"
+        $csproj.Project.PropertyGroup.AssemblyVersion = "${{ inputs.version }}.0"
+        $csproj.Project.PropertyGroup.FileVersion = "${{ inputs.version }}.0"
+        $csproj.Project.PropertyGroup.Version = "${{ inputs.version }}"
         $csproj.Save($csprojPath)
 
     - name: Test publish for ${{ inputs.runtime }}
