@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/jackghicks/thirds-for-windows11/compare/v1.0.0...v1.1.0) (2025-07-29)
+
+
+### Features
+
+* reset version in file to 0.0.0.0 to indicate development builds ([11067bd](https://github.com/jackghicks/thirds-for-windows11/commit/11067bd4a55d3e5ba0d23088a54dcbe7e11670d0))
+
 ## 1.0.0 (2025-07-29)
 
 
