@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/jackghicks/thirds-for-windows11/compare/v1.1.1...v1.1.2) (2025-08-27)
+
+
+### Bug Fixes
+
+* download artifact must happen in tandem with build, not in opposition to it ([0123072](https://github.com/jackghicks/thirds-for-windows11/commit/0123072abbd11f08fc8bfcbed50709033e5a5000))
+
 ## [1.1.1](https://github.com/jackghicks/thirds-for-windows11/compare/v1.1.0...v1.1.1) (2025-08-27)
 
 
