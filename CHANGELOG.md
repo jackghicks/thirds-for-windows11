@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.3](https://github.com/jackghicks/thirds-for-windows11/compare/v1.1.2...v1.1.3) (2025-08-27)
+
+
+### Bug Fixes
+
+* executable file name does not have the version number in it ([cd816b9](https://github.com/jackghicks/thirds-for-windows11/commit/cd816b944756241295da38b0e3eed7078b2e5307))
+
 ## [1.1.2](https://github.com/jackghicks/thirds-for-windows11/compare/v1.1.1...v1.1.2) (2025-08-27)
 
 
