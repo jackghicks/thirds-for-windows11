@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.1](https://github.com/jackghicks/thirds-for-windows11/compare/v1.1.0...v1.1.1) (2025-08-27)
+
+
+### Bug Fixes
+
+* artifact usage for releases ([5f29d2e](https://github.com/jackghicks/thirds-for-windows11/commit/5f29d2eeb35410183dd52c6b4b63c17d319a5e99))
+* remove slash character causing doubling in the output ([d9448b9](https://github.com/jackghicks/thirds-for-windows11/commit/d9448b9e2e71dcbb083f45419aed6cae0e4b13c4))
+
 ## [1.1.0](https://github.com/jackghicks/thirds-for-windows11/compare/v1.0.0...v1.1.0) (2025-07-29)
 
 
