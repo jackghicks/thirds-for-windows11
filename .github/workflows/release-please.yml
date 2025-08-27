@@ -61,9 +61,18 @@ jobs:
 
       - name: Upload Release Artifact
         shell: pwsh
-        if: ${{ needs.release-please.outputs.release_created }}
+        if: ${{ needs.release-please.outputs.release_created && !matrix.self-contained }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          Rename-Item -Path "./test-publish/${{ matrix.runtime }}.self-contained-${{ matrix.self-contained }}/thirds-for-windows11.exe" -NewName "thirds-for-windows11-${{ matrix.runtime }}.self-contained-${{ matrix.self-contained }}-v${{ needs.release-please.outputs.version }}.exe"
-          gh release upload ${{ needs.release-please.outputs.tag_name }} ./test-publish/${{ matrix.runtime }}.self-contained-${{ matrix.self-contained }}/thirds-for-windows11-${{ matrix.runtime }}.self-contained-${{ matrix.self-contained }}-v${{ needs.release-please.outputs.version }}.exe
+          Rename-Item -Path "./test-publish/${{ matrix.runtime }}.self-contained-${{ matrix.self-contained }}/thirds-for-windows11.exe" -NewName "thirds-for-windows11-${{ matrix.runtime }}-v${{ needs.release-please.outputs.version }}.exe"
+          gh release upload ${{ needs.release-please.outputs.tag_name }} ./test-publish/${{ matrix.runtime }}.self-contained-${{ matrix.self-contained }}/thirds-for-windows11-${{ matrix.runtime }}-v${{ needs.release-please.outputs.version }}.exe
+
+      - name: Upload Release Artifact (Self Contained)
+        shell: pwsh
+        if: ${{ needs.release-please.outputs.release_created && matrix.self-contained }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          Rename-Item -Path "./test-publish/${{ matrix.runtime }}.self-contained-${{ matrix.self-contained }}/thirds-for-windows11.exe" -NewName "thirds-for-windows11-${{ matrix.runtime }}-self-contained-v${{ needs.release-please.outputs.version }}.exe"
+          gh release upload ${{ needs.release-please.outputs.tag_name }} ./test-publish/${{ matrix.runtime }}.self-contained-${{ matrix.self-contained }}/thirds-for-windows11-${{ matrix.runtime }}-self-contained-v${{ needs.release-please.outputs.version }}.exe
