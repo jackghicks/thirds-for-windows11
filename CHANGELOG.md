@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.4](https://github.com/jackghicks/thirds-for-windows11/compare/v1.1.3...v1.1.4) (2025-08-27)
+
+
+### Bug Fixes
+
+* each file in a github release must have a different file name, so include the matrix definition ([4f36d8e](https://github.com/jackghicks/thirds-for-windows11/commit/4f36d8e8f1f0cb618963cc226ae0328521ca33e3))
+
 ## [1.1.3](https://github.com/jackghicks/thirds-for-windows11/compare/v1.1.2...v1.1.3) (2025-08-27)
 
 
