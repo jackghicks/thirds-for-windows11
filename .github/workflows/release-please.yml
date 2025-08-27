@@ -44,6 +44,7 @@ jobs:
           echo "Version: ${{ needs.release-please.outputs.version }}"
           echo "Release Created: ${{ needs.release-please.outputs.release_created }}"
           echo "Tag Name: ${{ needs.release-please.outputs.tag_name }}"
+
       - name: Build
         if: ${{ needs.release-please.outputs.release_created || (matrix.runtime == 'win-x64' && matrix.self-contained == false) }}
         uses: ./.github/actions/build
@@ -52,6 +53,12 @@ jobs:
           self-contained: ${{ matrix.self-contained }}
           version: ${{ needs.release-please.outputs.version }}
       
+      - uses: actions/download-artifact@v4
+        if: ${{ !needs.release-please.outputs.release_created && !(matrix.runtime == 'win-x64' && matrix.self-contained == false) }}
+        with:
+          name: "thirds-for-windows11-${{ matrix.runtime }}-self-contained-${{ matrix.self-contained }}"
+          path: "./test-publish/${{ matrix.runtime }}.self-contained-${{ matrix.self-contained }}"
+
       - name: Upload Release Artifact
         shell: pwsh
         if: ${{ needs.release-please.outputs.release_created }}
