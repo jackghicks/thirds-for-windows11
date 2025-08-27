@@ -71,7 +71,7 @@ public static class StartupManager
     {
         try
         {
-            return AppContext.BaseDirectory + "\\" + Assembly.GetExecutingAssembly().GetName().Name + ".exe";
+            return AppContext.BaseDirectory + Assembly.GetExecutingAssembly().GetName().Name + ".exe";
         }
         catch
         {
