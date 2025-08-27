@@ -54,7 +54,7 @@ jobs:
           version: ${{ needs.release-please.outputs.version }}
       
       - uses: actions/download-artifact@v4
-        if: ${{ !needs.release-please.outputs.release_created && !(matrix.runtime == 'win-x64' && matrix.self-contained == false) }}
+        if: ${{ needs.release-please.outputs.release_created || (matrix.runtime == 'win-x64' && matrix.self-contained == false) }}
         with:
           name: "thirds-for-windows11-${{ matrix.runtime }}-self-contained-${{ matrix.self-contained }}"
           path: "./test-publish/${{ matrix.runtime }}.self-contained-${{ matrix.self-contained }}"
