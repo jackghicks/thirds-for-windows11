@@ -65,4 +65,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release upload ${{ needs.release-please.outputs.tag_name }} ./test-publish/${{ matrix.runtime }}.self-contained-${{ matrix.self-contained }}/thirds-for-windows11.exe
+          Rename-Item -Path "./test-publish/${{ matrix.runtime }}.self-contained-${{ matrix.self-contained }}/thirds-for-windows11.exe" -NewName "thirds-for-windows11-${{ matrix.runtime }}.self-contained-${{ matrix.self-contained }}-v${{ needs.release-please.outputs.version }}.exe"
+          gh release upload ${{ needs.release-please.outputs.tag_name }} ./test-publish/${{ matrix.runtime }}.self-contained-${{ matrix.self-contained }}/thirds-for-windows11-${{ matrix.runtime }}.self-contained-${{ matrix.self-contained }}-v${{ needs.release-please.outputs.version }}.exe
