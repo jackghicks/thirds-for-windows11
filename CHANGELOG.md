@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/jackghicks/thirds-for-windows11/compare/v1.1.4...v1.2.0) (2025-08-27)
+
+
+### Features
+
+* clean up file names for self-contained vs nonsc builds ([f202b60](https://github.com/jackghicks/thirds-for-windows11/commit/f202b60a7a012f542be1a629afdcaf3c5f44f46f))
+
 ## [1.1.4](https://github.com/jackghicks/thirds-for-windows11/compare/v1.1.3...v1.1.4) (2025-08-27)
 
 
