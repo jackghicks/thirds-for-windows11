@@ -14,6 +14,7 @@ public class WindowDragDetector : IDisposable
 
     // Events
     public event EventHandler<WindowDroppedEventArgs>? WindowDropped;
+    public event EventHandler<WindowMoveEventArgs>? WindowMove;
 
     // Tracking state
     private bool _isDragging = false;
@@ -61,6 +62,10 @@ public class WindowDragDetector : IDisposable
 
                     case WinApi.WM_LBUTTONUP:
                         HandleMouseUp(args);
+                        break;
+
+                    case WinApi.WM_MOUSEMOVE:
+                        HandleMouseMove(args);
                         break;
                 }
             }
@@ -117,6 +122,14 @@ public class WindowDragDetector : IDisposable
         }
     }
 
+    private void HandleMouseMove(MouseHookEventArgs args)
+    {
+        if (_isDragging)
+        {
+            WindowMove?.Invoke(this, new WindowMoveEventArgs(args.Point, _draggedWindow));
+        }
+    }
+
     public void Dispose()
     {
         if (_hookID != IntPtr.Zero)
@@ -151,6 +164,18 @@ public class WindowDroppedEventArgs : EventArgs
     public IntPtr WindowHandle { get; }
 
     public WindowDroppedEventArgs(WinApi.POINT point, IntPtr windowHandle)
+    {
+        Point = point;
+        WindowHandle = windowHandle;
+    }
+}
+
+public class WindowMoveEventArgs : EventArgs
+{
+    public WinApi.POINT Point { get; }
+    public IntPtr WindowHandle { get; }
+
+    public WindowMoveEventArgs(WinApi.POINT point, IntPtr windowHandle)
     {
         Point = point;
         WindowHandle = windowHandle;

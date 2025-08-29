@@ -1,0 +1,213 @@
+namespace WindowSnapManager;
+
+/// <summary>
+/// Provides visual feedback overlay for snap zones, similar to Windows Snap Assist.
+/// Shows semi-transparent overlays when a window is being dragged over snap zones.
+/// </summary>
+public class SnapZoneOverlay : IDisposable
+{
+    private readonly Form _overlayForm;
+    private readonly WindowSnapper _windowSnapper;
+    private SnapZone _currentZone = SnapZone.None;
+    // Visual styling constants
+    private readonly Color _overlayColor = Color.FromKnownColor(KnownColor.WindowFrame);
+    private readonly Color _borderColor = Color.FromKnownColor(KnownColor.White);
+    private const int BorderWidth = 5;
+    private const int Margin = 5;
+    
+    // Animation constants
+    private const double TargetOpacity = 0.2;
+    private const int AnimationDurationMs = 110;
+    private CancellationTokenSource? _animationCts;
+
+    public SnapZoneOverlay(WindowSnapper windowSnapper)
+    {
+        _windowSnapper = windowSnapper;
+        _overlayForm = CreateOverlayForm();
+    }
+
+    /// <summary>
+    /// Creates and configures the overlay form that will display the snap zone visual feedback.
+    /// </summary>
+    private Form CreateOverlayForm()
+    {
+        var form = new Form
+        {
+            FormBorderStyle = FormBorderStyle.None,
+            WindowState = FormWindowState.Normal,
+            TopMost = true,
+            ShowInTaskbar = false,
+            StartPosition = FormStartPosition.Manual,
+            BackColor = Color.Magenta,
+            TransparencyKey = Color.Magenta,
+            AllowTransparency = true,
+            Opacity = 0,
+            Enabled = false,
+            Visible = false
+        };
+
+        // Set bounds to cover the working area of the primary screen
+        var workingArea = Screen.PrimaryScreen?.WorkingArea ?? Rectangle.Empty;
+        form.Bounds = workingArea;
+
+        // Make the form click-through
+        form.Load += (s, e) => SetClickThrough(form);
+        form.Paint += OnOverlayPaint;
+
+        return form;
+    }
+
+    /// <summary>
+    /// Makes the overlay form "click-through" so it doesn't interfere with mouse interactions.
+    /// This is done by making it a layered window (and transparent while we're here).
+    /// </summary>
+    private void SetClickThrough(Form form)
+    {
+        IntPtr handle = form.Handle;
+        uint extendedStyle = WinApi.GetWindowLong(handle, WinApi.GWL_EXSTYLE);
+        WinApi.SetWindowLong(handle, WinApi.GWL_EXSTYLE, extendedStyle | WinApi.WS_EX_LAYERED | WinApi.WS_EX_TRANSPARENT);
+    }
+
+    /// <summary>
+    /// Handles painting the snap zone overlays.
+    /// </summary>
+    private void OnOverlayPaint(object? sender, PaintEventArgs e)
+    {
+        if (_currentZone == SnapZone.None)
+            return;
+
+        var screenInfo = _windowSnapper.GetScreenInfo();
+        Rectangle targetRect = _currentZone switch
+        {
+            SnapZone.LeftThird => screenInfo.LeftThird,
+            SnapZone.MiddleThird => screenInfo.MiddleThird,
+            SnapZone.RightThird => screenInfo.RightThird,
+            _ => Rectangle.Empty
+        };
+
+        if (targetRect.IsEmpty)
+            return;
+
+        // Convert to screen coordinates relative to the overlay form
+        var workingArea = Screen.PrimaryScreen?.WorkingArea ?? Rectangle.Empty;
+        targetRect = new Rectangle(
+            targetRect.X - workingArea.X,
+            targetRect.Y - workingArea.Y,
+            targetRect.Width,
+            targetRect.Height
+        );
+
+        targetRect.Inflate(-Margin, -Margin);
+
+        // Draw the filled overlay
+        using (var brush = new SolidBrush(_overlayColor))
+        {
+            e.Graphics.FillRectangle(brush, targetRect);
+        }
+
+        // Draw the border
+        using (var pen = new Pen(_borderColor, BorderWidth))
+        {
+            e.Graphics.DrawRectangle(pen, targetRect);
+        }
+    }
+
+    /// <summary>
+    /// Shows the overlay for the specified snap zone.
+    /// </summary>
+    public void ShowZone(SnapZone zone)
+    {
+        // This method will get hit repeatedly, so ignore if it's the same zone to stop flickering
+        if (_currentZone == zone)
+            return;
+
+        // Cancel any ongoing animation
+        _animationCts?.Cancel();
+        _animationCts = new CancellationTokenSource();
+
+        _currentZone = zone;
+
+        if (zone == SnapZone.None)
+        {
+            Hide();
+        }
+        else
+        {
+            _overlayForm.Show();
+            _overlayForm.Invalidate(); // Trigger repaint
+            
+            // Animate opacity from 0 to target
+            Task.Run(async () =>
+            {
+                try
+                {
+                    await AnimateOpacity(0, TargetOpacity, _animationCts.Token);
+                }
+                catch (OperationCanceledException)
+                {
+                    // this is normal, ignore
+                }
+            });
+        }
+    }
+
+    /// <summary>
+    /// Animates the opacity of the overlay form from start to end value.
+    /// </summary>
+    private async Task AnimateOpacity(double startOpacity, double endOpacity, CancellationToken cancellationToken)
+    {
+        var startTime = DateTime.Now;
+        var duration = TimeSpan.FromMilliseconds(AnimationDurationMs);
+
+        while (DateTime.Now - startTime < duration)
+        {
+            if (cancellationToken.IsCancellationRequested)
+                return;
+
+            var elapsed = DateTime.Now - startTime;
+            var progress = Math.Min(elapsed.TotalMilliseconds / duration.TotalMilliseconds, 1.0);
+            
+            // Linear interpolation
+            var currentOpacity = startOpacity + (endOpacity - startOpacity) * progress;
+            
+            _overlayForm.Invoke(() => _overlayForm.Opacity = currentOpacity);
+
+            await Task.Delay(1000/60, cancellationToken); // ~60 FPS
+        }
+
+        _overlayForm.Invoke(() => _overlayForm.Opacity = endOpacity);
+    }
+
+    /// <summary>
+    /// Hides the overlay.
+    /// </summary>
+    public void Hide()
+    {
+        _currentZone = SnapZone.None;
+
+        // Cancel any ongoing animation
+        _animationCts?.Cancel();
+        _animationCts = new CancellationTokenSource();
+
+        Task.Run(async () =>
+        {
+            try
+            {
+                // animate, then hide when done!
+                await AnimateOpacity(_overlayForm.Opacity, 0, _animationCts.Token);
+                _overlayForm.Invoke(() => _overlayForm.Hide());
+            }
+            catch (OperationCanceledException)
+            {
+                // this is normal, ignore
+            }
+        });
+    }
+
+    public void Dispose()
+    {
+        _animationCts?.Cancel();
+        _animationCts?.Dispose();
+        _overlayForm?.Dispose();
+    }
+}
