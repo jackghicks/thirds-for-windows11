@@ -9,6 +9,10 @@ namespace WindowSnapManager;
 public static class WinApi
 {
     #region Constants
+
+    // See https://learn.microsoft.com/en-us/windows/win32/winmsg/window-styles
+    // Also https://learn.microsoft.com/en-us/windows/win32/winmsg/extended-window-styles
+
     public const int WH_MOUSE_LL = 14;
     public const int WM_LBUTTONDOWN = 0x0201;
     public const int WM_LBUTTONUP = 0x0202;
@@ -24,10 +28,13 @@ public static class WinApi
 
     // Extended window style constants
     public const uint WS_EX_TOOLWINDOW = 0x00000080;
+    public const int WS_EX_LAYERED = 0x80000;
+    public const int WS_EX_TRANSPARENT = 0x20;
 
     // GetWindowLong constants
     public const int GWL_STYLE = -16;
     public const int GWL_EXSTYLE = -20;
+
     #endregion
 
     #region Structures
@@ -102,6 +109,9 @@ public static class WinApi
 
     [DllImport("user32.dll", SetLastError = true)]
     public static extern uint GetWindowLong(IntPtr hWnd, int nIndex);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern uint SetWindowLong(IntPtr hWnd, int nIndex, uint dwNewLong);
 
     [DllImport("user32.dll")]
     public static extern IntPtr GetParent(IntPtr hWnd);
