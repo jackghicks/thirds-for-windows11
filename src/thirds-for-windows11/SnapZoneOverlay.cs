@@ -105,11 +105,6 @@ public class SnapZoneOverlay : IDisposable
         {
             e.Graphics.DrawRectangle(pen, targetRect);
         }
-
-        using (var brush = new SolidBrush(Color.FromKnownColor(KnownColor.Red)))
-        {
-            e.Graphics.FillEllipse(brush, (int)(Random.Shared.NextDouble() * _overlayForm.Width), (int)(Random.Shared.NextDouble() * _overlayForm.Height), 150, 150);
-        }
     }
 
     /// <summary>
