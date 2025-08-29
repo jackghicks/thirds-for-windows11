@@ -14,6 +14,11 @@ public class SnapZoneOverlay : IDisposable
     private readonly Color _borderColor = Color.FromKnownColor(KnownColor.White);
     private const int BorderWidth = 5;
     private const int Margin = 5;
+    
+    // Animation constants
+    private const double TargetOpacity = 0.2;
+    private const int AnimationDurationMs = 110;
+    private CancellationTokenSource? _animationCts;
 
     public SnapZoneOverlay(WindowSnapper windowSnapper)
     {
@@ -36,7 +41,7 @@ public class SnapZoneOverlay : IDisposable
             BackColor = Color.Magenta,
             TransparencyKey = Color.Magenta,
             AllowTransparency = true,
-            Opacity = 0.2,
+            Opacity = 0,
             Enabled = false,
             Visible = false
         };
@@ -116,6 +121,10 @@ public class SnapZoneOverlay : IDisposable
         if (_currentZone == zone)
             return;
 
+        // Cancel any ongoing animation
+        _animationCts?.Cancel();
+        _animationCts = new CancellationTokenSource();
+
         _currentZone = zone;
 
         if (zone == SnapZone.None)
@@ -124,9 +133,49 @@ public class SnapZoneOverlay : IDisposable
         }
         else
         {
-            _overlayForm.Invalidate(); // Trigger repaint
             _overlayForm.Show();
+            _overlayForm.Invalidate(); // Trigger repaint
+            
+            // Animate opacity from 0 to target
+            Task.Run(async () =>
+            {
+                try
+                {
+                    await AnimateOpacity(0, TargetOpacity, _animationCts.Token);
+                }
+                catch (OperationCanceledException)
+                {
+                    // this is normal, ignore
+                }
+            });
         }
+    }
+
+    /// <summary>
+    /// Animates the opacity of the overlay form from start to end value.
+    /// </summary>
+    private async Task AnimateOpacity(double startOpacity, double endOpacity, CancellationToken cancellationToken)
+    {
+        var startTime = DateTime.Now;
+        var duration = TimeSpan.FromMilliseconds(AnimationDurationMs);
+
+        while (DateTime.Now - startTime < duration)
+        {
+            if (cancellationToken.IsCancellationRequested)
+                return;
+
+            var elapsed = DateTime.Now - startTime;
+            var progress = Math.Min(elapsed.TotalMilliseconds / duration.TotalMilliseconds, 1.0);
+            
+            // Linear interpolation
+            var currentOpacity = startOpacity + (endOpacity - startOpacity) * progress;
+            
+            _overlayForm.Invoke(() => _overlayForm.Opacity = currentOpacity);
+
+            await Task.Delay(1000/60, cancellationToken); // ~60 FPS
+        }
+
+        _overlayForm.Invoke(() => _overlayForm.Opacity = endOpacity);
     }
 
     /// <summary>
@@ -136,19 +185,29 @@ public class SnapZoneOverlay : IDisposable
     {
         _currentZone = SnapZone.None;
 
-        // re-render the form to clear the previous pane before hiding, to prevent ghosting when the next overlay shows
-        _overlayForm.Invalidate();
+        // Cancel any ongoing animation
+        _animationCts?.Cancel();
+        _animationCts = new CancellationTokenSource();
 
-        // Slight delay to allow the repaint to occur before hiding, to ensure the overlay clears properly
-        Task.Run(() =>
+        Task.Run(async () =>
+        {
+            try
             {
-                Thread.Sleep(10);
+                // animate, then hide when done!
+                await AnimateOpacity(_overlayForm.Opacity, 0, _animationCts.Token);
                 _overlayForm.Hide();
-            });
+            }
+            catch (OperationCanceledException)
+            {
+                // this is normal, ignore
+            }
+        });
     }
 
     public void Dispose()
     {
+        _animationCts?.Cancel();
+        _animationCts?.Dispose();
         _overlayForm?.Dispose();
     }
 }
