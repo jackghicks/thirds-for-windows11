@@ -195,7 +195,7 @@ public class SnapZoneOverlay : IDisposable
             {
                 // animate, then hide when done!
                 await AnimateOpacity(_overlayForm.Opacity, 0, _animationCts.Token);
-                _overlayForm.Hide();
+                _overlayForm.Invoke(() => _overlayForm.Hide());
             }
             catch (OperationCanceledException)
             {
