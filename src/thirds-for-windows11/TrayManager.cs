@@ -81,6 +81,7 @@ public class TrayManager : IDisposable
         if (!_disposed)
         {
             _disposed = true;
+            _windowManager?.Dispose();
             _notifyIcon?.Dispose();
         }
     }

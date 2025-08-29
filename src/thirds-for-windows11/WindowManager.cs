@@ -5,7 +5,7 @@ namespace WindowSnapManager;
 /// <summary>
 /// Bolts the window snapper and window drag detector together with the snap zone overlay display.
 /// </summary>
-public class WindowManager
+public class WindowManager : IDisposable
 {
     private readonly WindowDragDetector _windowDragDetector;
     private readonly WindowSnapper _windowSnapper;
@@ -30,5 +30,11 @@ public class WindowManager
         // Show visual feedback for the current snap zone
         var zone = _windowSnapper.GetSnapZone(e.Point);
         _snapZoneOverlay.ShowZone(zone);
+    }
+
+    public void Dispose()
+    {
+        _snapZoneOverlay?.Dispose();
+        _windowDragDetector?.Dispose();
     }
 }
