@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/jackghicks/thirds-for-windows11/compare/v1.2.0...v1.3.0) (2025-08-29)
+
+
+### Features
+
+* added snap overlay visual feedback ([#9](https://github.com/jackghicks/thirds-for-windows11/issues/9)) ([8613abb](https://github.com/jackghicks/thirds-for-windows11/commit/8613abb2e544d7dd4a2928f90bd8a6ef772b9178))
+
 ## [1.2.0](https://github.com/jackghicks/thirds-for-windows11/compare/v1.1.4...v1.2.0) (2025-08-27)
 
 
